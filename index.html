@@ -139,7 +139,6 @@ details{color:var(--muted);font-size:.8rem}
 
 <script>
 let D=null, lang='en';
-try{const s=localStorage.getItem('fxLang');if(s==='en'||s==='zh')lang=s;}catch(e){}
 const LIGHT={red:'var(--up)',yellow:'var(--warn)',green:'var(--down)'};
 const VIX_ALERT=30, NVDA_CAP=20;
 const en=()=>lang==='en';
@@ -221,7 +220,7 @@ function render(){
  rows.forEach(r=>{const b=el('div','bar');const tr=el('div','track');const f=el('div','fill'+(r.sym==='CASH'?' cash':''));f.style.width=(r.w/max*100)+'%';tr.append(f);b.append(el('span',null,r.name),tr,el('span','pct',fmt(r.w,2)+'%'));bars.append(b);});
 }
 
-document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;try{localStorage.setItem('fxLang',lang);}catch(e){}render();}));
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;render();}));
 fetch('data.json',{cache:'no-store'}).then(r=>r.json()).then(j=>{D=j;render();}).catch(()=>{document.getElementById('action').textContent='資料載入失敗 / Failed to load data';});
 </script>
 </body>

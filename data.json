@@ -34,7 +34,7 @@
    "symbol": "SOX",
    "name": "費城半導體",
    "name_en": "Philadelphia Semiconductor",
-   "value": "",
+   "value": "8408.59",
    "change_pct": "-10.73",
    "change_text": "",
    "change_text_en": "",
@@ -419,7 +419,7 @@
    "action_en": "Top priority before investing"
   }
  ],
- "updated_at": "2026-11-23T14:17:44Z",
+ "updated_at": "2026-11-23T14:47:18Z",
  "drawdown": [
   {
    "symbol": "SPX",

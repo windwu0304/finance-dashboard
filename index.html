@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>我的每日財經看板</title>
+<style>
+:root{--bg:#f6f6f4;--panel:#fff;--fg:#1f1f1d;--muted:#6b6a66;--line:#e3e2de;--up:#d1342f;--down:#1f8a4c;--warn:#c98a00;--accent:#3b5bdb;--radius:12px}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--panel:#1f1f1d;--fg:#ecebe7;--muted:#a3a29d;--line:#34332f;--up:#ff6b63;--down:#4cc47f;--warn:#e0a92e;--accent:#8ea2ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Segoe UI",sans-serif;line-height:1.5}
+.wrap{max-width:1000px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.en{display:none}
+body.lang-en .en{display:revert}
+body.lang-en .zh{display:none}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+h1{font-size:1.5rem;margin:0;font-weight:600}
+h2{font-size:1.1rem;margin:0 0 10px;font-weight:600}
+h3{font-size:.95rem;margin:12px 0 6px;color:var(--muted);font-weight:600}
+.sub{color:var(--muted);font-size:.8rem;margin:4px 0 0}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{font:inherit;font-size:.8rem;padding:4px 14px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:.75rem;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.sym{display:block;color:var(--muted);font-size:.75rem}
+.muted{color:var(--muted);font-size:.8rem}
+.news{display:flex;flex-direction:column;gap:14px}
+.news article{border-left:4px solid var(--line);padding:2px 0 2px 12px}
+.news h4{margin:0 0 4px;font-size:.95rem}
+.news p{margin:0 0 6px}
+.why{background:var(--bg);border-radius:8px;padding:6px 8px;font-size:.8rem;margin-bottom:4px}
+.news a{color:var(--accent)}
+.action{font-size:1.4rem;margin:4px 0}
+.strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.chip{flex:0 0 170px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.chip .n{font-size:.75rem;color:var(--muted)}
+.chip .v{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.chip .c{font-weight:600;font-variant-numeric:tabular-nums}
+.chip .p{font-size:.75rem;color:var(--muted);margin-top:4px}
+.bar{display:grid;grid-template-columns:110px 1fr 60px;align-items:center;gap:8px;margin:6px 0;font-size:.85rem}
+.bar .track{background:var(--bg);border-radius:4px;height:18px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:4px}
+.bar .fill.cash{background:var(--muted)}
+.bar .pct{text-align:right;font-variant-numeric:tabular-nums}
+details{color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <div>
+  <h1><span class="zh">我的每日財經看板</span><span class="en">My Daily Market Dashboard</span></h1>
+  <p class="sub"><span class="zh">資料時間：</span><span class="en">Data as of: </span><span id="asof">—</span><span class="zh">。紅色代表上漲，綠色代表下跌。</span><span class="en">. Red means up, green means down.</span></p>
+ </div>
+ <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="zh" aria-pressed="true">中文</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+</header>
+
+<section class="card" id="holdings">
+ <h2><span class="zh">💼 我的持股</span><span class="en">💼 My holdings</span></h2>
+ <div class="scroll"><table>
+  <thead><tr><th><span class="zh">名稱</span><span class="en">Name</span></th><th class="num"><span class="zh">價格</span><span class="en">Price</span></th><th class="num"><span class="zh">漲跌</span><span class="en">Change</span></th><th class="num"><span class="zh">占比</span><span class="en">% of total</span></th><th><span class="zh">發生什麼事</span><span class="en">What happened</span></th><th><span class="zh">你要做的</span><span class="en">What to do</span></th></tr></thead>
+  <tbody id="t-holdings"></tbody>
+ </table></div>
+</section>
+
+<section class="card" id="events">
+ <h2><span class="zh">🗓️ 本週行事曆（台灣時間）</span><span class="en">🗓️ This week (Taiwan time)</span></h2>
+ <div class="scroll"><table>
+  <thead><tr><th><span class="zh">日期</span><span class="en">Date</span></th><th><span class="zh">時間</span><span class="en">Time</span></th><th><span class="zh">事件</span><span class="en">Event</span></th><th><span class="zh">重要性</span><span class="en">Importance</span></th><th><span class="zh">白話說明</span><span class="en">In plain words</span></th></tr></thead>
+  <tbody id="t-events"></tbody>
+ </table></div>
+</section>
+
+<section class="card" id="rules">
+ <h2><span class="zh">✅ 我的規則檢查</span><span class="en">✅ My rule check</span></h2>
+ <div class="scroll"><table>
+  <thead><tr><th><span class="zh">規則</span><span class="en">Rule</span></th><th><span class="zh">目前狀態</span><span class="en">Status</span></th><th><span class="zh">動作</span><span class="en">Action</span></th></tr></thead>
+  <tbody id="t-rules"></tbody>
+ </table></div>
+</section>
+
+<section class="card" id="news">
+ <h2><span class="zh">📰 跟你有關的新聞</span><span class="en">📰 News that matters to you</span></h2>
+ <div class="news" id="l-news"></div>
+</section>
+
+<section class="card" id="today">
+ <h2><span class="zh">📌 今天要做什麼？</span><span class="en">📌 What should I do today?</span></h2>
+ <p class="action" id="action">—</p>
+ <p id="mood">—</p>
+</section>
+
+<section id="markets">
+ <h2><span class="zh">🚦 市場行情</span><span class="en">🚦 Markets</span></h2>
+ <h3><span class="zh">美股</span><span class="en">US markets</span></h3>
+ <div class="strip" id="s-us"></div>
+ <h3><span class="zh">台股</span><span class="en">Taiwan market</span></h3>
+ <div class="strip" id="s-tw"></div>
+</section>
+
+<section class="card" id="alloc">
+ <h2><span class="zh">🥧 資產配置</span><span class="en">🥧 Asset allocation</span></h2>
+ <div id="bars"></div>
+</section>
+
+<section class="card" id="word">
+ <h2><span class="zh">📖 今天學一個詞</span><span class="en">📖 Word of the day</span></h2>
+ <p><b><span class="zh">VIX（恐慌指數）</span><span class="en">VIX (the fear index)</span></b></p>
+ <p class="zh">它衡量投資人有多害怕。平常大約 15～20，超過 30 代表很恐慌。有句老話說「別人恐懼時我貪婪」：歷史上 VIX 很高的時候，常是長期投資人分批買進的時機。但 VIX 高不代表馬上會反彈，所以才要分批，不要一次買完。</p>
+ <p class="en">It measures how scared investors are. It usually sits around 15 to 20; above 30 means real fear. As the saying goes, be greedy when others are fearful: a high VIX has often been a good time for long-term investors to buy in stages. But it does not mean an immediate rebound, which is why you buy in stages.</p>
+</section>
+
+<details><summary><span class="zh">關於這份看板</span><span class="en">About this dashboard</span></summary><p class="zh">數字整理自 Reuters、美聯社、經濟日報等報導與報價網站。以上不構成投資建議。</p><p class="en">Figures are compiled from Reuters, AP, Economic Daily News and quote sites. Not investment advice.</p></details>
+</div>
+
+<script>
+let D=null, lang='zh';
+try{const s=localStorage.getItem('fxLang');if(s==='en'||s==='zh')lang=s;}catch(e){}
+const LIGHT={red:'var(--up)',yellow:'var(--warn)',green:'var(--down)'};
+const VIX_ALERT=30, NVDA_CAP=20;
+const en=()=>lang==='en';
+const T=(z,e)=>en()?e:z;
+const L=(r,f)=>(en()&&r[f+'_en'])?r[f+'_en']:r[f];
+const num=v=>{const n=parseFloat(v);return isNaN(n)?null:n;};
+const fmt=(n,d)=>n==null?'—':n.toLocaleString(en()?'en-US':'zh-TW',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=n=>n==null?'—':(n>0?'▲ +':'▼ ')+fmt(n,2)+'%';
+const col=n=>n==null||n===0?'var(--muted)':(n>0?'var(--up)':'var(--down)');
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function dot(l){const d=el('span','dot');d.style.background=LIGHT[l]||'var(--line)';return d;}
+function td(text,cls,color){const c=el('td',cls,text);if(color)c.style.color=color;return c;}
+
+function render(){
+ if(!D)return;
+ document.body.classList.toggle('lang-en',en());
+ document.documentElement.lang=en()?'en':'zh-TW';
+ document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+ const m=D.markets||[];
+ document.getElementById('asof').textContent=m.length?(L(m[0],'as_of')||'—'):'—';
+
+ const th=document.getElementById('t-holdings');th.replaceChildren();
+ (D.holdings||[]).forEach(r=>{
+  const tr=el('tr');const n=el('td');n.append(dot(r.light),document.createTextNode(L(r,'name')),el('span','sym',r.symbol==='CASH'?T('新台幣','TWD'):r.symbol));tr.append(n);
+  const p=num(r.price);tr.append(td(p==null?'—':fmt(p,2)+(r.currency==='USD'?T(' 美元',' USD'):T(' 元',' TWD')),'num'));
+  const c=num(r.change_pct);tr.append(td(pct(c),'num',col(c)));
+  tr.append(td(fmt(num(r.weight_pct),2)+'%','num'),td(L(r,'plain')),td(L(r,'action')));th.append(tr);
+ });
+
+ const te=document.getElementById('t-events');te.replaceChildren();
+ (D.events||[]).forEach(r=>{const tr=el('tr');tr.append(td(L(r,'date'),'num'),td(L(r,'time_tw'),'num'),td(L(r,'event')),td(L(r,'importance'),null,r.importance==='高'?'var(--up)':null),td(L(r,'plain')));te.append(tr);});
+
+ const tr_=document.getElementById('t-rules');tr_.replaceChildren();
+ (D.rules||[]).forEach(r=>{const tr=el('tr');const a=el('td');a.append(dot(r.light),document.createTextNode(L(r,'rule')));tr.append(a,td(L(r,'status')),td(L(r,'action')));tr_.append(tr);});
+
+ const ln=document.getElementById('l-news');ln.replaceChildren();
+ (D.news||[]).forEach(r=>{
+  const a=el('article');a.style.borderLeftColor=LIGHT[r.light]||'var(--line)';
+  a.append(el('h4',null,L(r,'headline')),el('p',null,L(r,'plain')),el('div','why',T('跟你的關係：','Why it matters to you: ')+L(r,'why_me')));
+  const s=el('div','muted',T('來源：','Source: ')+(r.source||'—'));
+  const u=r.url||'';if(u.startsWith('https://')||u.startsWith('http://')){s.append(' · ');const k=el('a',null,T('閱讀原文 ↗','Read article ↗'));k.href=u;k.target='_blank';k.rel='noopener noreferrer';s.append(k);}
+  a.append(s);ln.append(a);
+ });
+
+ const todo=(D.rules||[]).filter(x=>x.needs_action==='yes');
+ document.getElementById('action').textContent=todo.length?T('有 '+todo.length+' 件事要做：',todo.length+' thing(s) to do: ')+todo.map(x=>L(x,'action')).join(T('；','; ')):T('不用做任何事。','Nothing to do today.');
+ const vix=m.find(r=>r.symbol==='VIX'),nv=(D.holdings||[]).find(r=>r.symbol==='NVDA');
+ document.getElementById('mood').textContent=((vix&&num(vix.value)>VIX_ALERT)?T('市場很恐慌','Markets are very fearful'):T('市場情緒還算平穩','Markets are fairly calm'))+T('；',', ')+((nv&&num(nv.weight_pct)<=NVDA_CAP)?T('你的持股都還在安全範圍內。','but your holdings are all within safe limits.'):T('輝達的比例超過上限，需要檢查。','and NVIDIA is above its cap.'));
+
+ ['us','tw'].forEach(reg=>{
+  const s=document.getElementById('s-'+reg);s.replaceChildren();
+  m.filter(r=>(r.region||'us')===reg).forEach(r=>{
+   const c=el('div','chip');c.append(el('span','n',L(r,'name')));
+   const v=num(r.value);c.append(el('span','v',v==null?'—':fmt(v,2)));
+   const p=num(r.change_pct);let g;
+   if(p!=null){g=el('span','c',pct(p));g.style.color=col(p);}
+   else if(r.change_text){const t=num(r.change_text);g=el('span','c',(t<0?'▼ ':'▲ ')+L(r,'change_text'));g.style.color=col(t);}
+   else g=el('span','c','—');
+   c.append(g,el('span','p',L(r,'plain')));s.append(c);
+  });
+ });
+
+ const bars=document.getElementById('bars');bars.replaceChildren();
+ const rows=(D.holdings||[]).map(r=>({sym:r.symbol,name:L(r,'name'),w:num(r.weight_pct)||0})).sort((a,b)=>b.w-a.w);
+ const max=Math.max(1,...rows.map(r=>r.w));
+ rows.forEach(r=>{const b=el('div','bar');const tr=el('div','track');const f=el('div','fill'+(r.sym==='CASH'?' cash':''));f.style.width=(r.w/max*100)+'%';tr.append(f);b.append(el('span',null,r.name),tr,el('span','pct',fmt(r.w,2)+'%'));bars.append(b);});
+}
+
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;try{localStorage.setItem('fxLang',lang);}catch(e){}render();}));
+fetch('data.json',{cache:'no-store'}).then(r=>r.json()).then(j=>{D=j;render();}).catch(()=>{document.getElementById('action').textContent='資料載入失敗 / Failed to load data';});
+</script>
+</body>
+</html>

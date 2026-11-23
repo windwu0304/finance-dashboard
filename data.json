@@ -417,5 +417,49 @@
    "action_en": "Top priority before investing"
   }
  ],
- "updated_at": "2026-11-23T05:55:00Z"
+ "updated_at": "2026-11-23T05:55:00Z",
+ "drawdown": [
+  {
+   "symbol": "SPX",
+   "name": "標普 500",
+   "name_en": "S&P 500",
+   "peak": "7818.93",
+   "peak_date": "2026-10-06",
+   "current": "6910.39",
+   "current_date": "2026-11-20",
+   "pct": "-11.62",
+   "days": "45",
+   "streak": "7",
+   "stage": "修正",
+   "stage_en": "Correction"
+  },
+  {
+   "symbol": "IXIC",
+   "name": "那斯達克",
+   "name_en": "Nasdaq",
+   "peak": "27599.79",
+   "peak_date": "2026-10-06",
+   "current": "22617.73",
+   "current_date": "2026-11-20",
+   "pct": "-18.05",
+   "days": "45",
+   "streak": "",
+   "stage": "修正",
+   "stage_en": "Correction"
+  },
+  {
+   "symbol": "TAIEX",
+   "name": "台股加權指數",
+   "name_en": "Taiwan TAIEX",
+   "peak": "49968",
+   "peak_date": "2026-10-06",
+   "current": "36033.29",
+   "current_date": "2026-11-20",
+   "pct": "-27.89",
+   "days": "45",
+   "streak": "",
+   "stage": "熊市",
+   "stage_en": "Bear market"
+  }
+ ]
 }

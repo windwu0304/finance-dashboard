@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -50,16 +50,26 @@ td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 .bar .fill.cash{background:var(--muted)}
 .bar .pct{text-align:right;font-variant-numeric:tabular-nums}
 details{color:var(--muted);font-size:.8rem}
+.legend{color:var(--muted);font-size:.75rem;margin:10px 0 0}
+.legend .dot{width:8px;height:8px;margin:0 4px 0 0}
+.dd{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.dd .box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.dd .nm{font-size:.8rem;color:var(--muted)}
+.dd .big{font-size:1.6rem;font-weight:600;color:var(--down);font-variant-numeric:tabular-nums}
+.dd .stage{display:inline-block;font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--bg);margin-left:6px}
+.dd .meta{font-size:.8rem;margin-top:4px}
+.dd .track{background:var(--bg);border-radius:4px;height:8px;margin-top:8px;overflow:hidden}
+.dd .fill{height:100%;background:var(--down)}
 </style>
 </head>
-<body>
+<body class="lang-en">
 <div class="wrap">
 <header>
  <div>
   <h1><span class="zh">我的每日財經看板</span><span class="en">My Daily Market Dashboard</span></h1>
   <p class="sub"><span class="zh">資料時間：</span><span class="en">Data as of: </span><span id="asof">—</span><span class="zh">。紅色代表上漲，綠色代表下跌。</span><span class="en">. Red means up, green means down.</span></p>
  </div>
- <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="zh" aria-pressed="true">中文</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+ <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="zh" aria-pressed="false">中文</button></div>
 </header>
 
 <section class="card" id="holdings">
@@ -68,6 +78,7 @@ details{color:var(--muted);font-size:.8rem}
   <thead><tr><th><span class="zh">名稱</span><span class="en">Name</span></th><th class="num"><span class="zh">價格</span><span class="en">Price</span></th><th class="num"><span class="zh">漲跌</span><span class="en">Change</span></th><th class="num"><span class="zh">占比</span><span class="en">% of total</span></th><th><span class="zh">發生什麼事</span><span class="en">What happened</span></th><th><span class="zh">你要做的</span><span class="en">What to do</span></th></tr></thead>
   <tbody id="t-holdings"></tbody>
  </table></div>
+ <p class="legend"><span class="zh"><span class="dot" style="background:var(--up)"></span>需要注意：有重大壞消息　<span class="dot" style="background:var(--warn)"></span>觀察：跟著大盤波動　<span class="dot" style="background:var(--down)"></span>正常：沒有壞消息</span><span class="en"><span class="dot" style="background:var(--up)"></span>Watch closely: major bad news　<span class="dot" style="background:var(--warn)"></span>Keep an eye on: moving with the market　<span class="dot" style="background:var(--down)"></span>OK: no bad news</span></p>
 </section>
 
 <section class="card" id="events">
@@ -97,6 +108,12 @@ details{color:var(--muted);font-size:.8rem}
  <p id="mood">—</p>
 </section>
 
+<section class="card" id="drawdown">
+ <h2><span class="zh">📉 大跌追蹤</span><span class="en">📉 Drawdown tracker</span></h2>
+ <div class="dd" id="l-dd"></div>
+ <p class="legend"><span class="zh">從歷史高點算起：跌 5% 內是正常波動，5～10% 叫回檔，10～20% 叫修正，超過 20% 叫熊市。</span><span class="en">Measured from the record high: under 5% is a normal swing, 5–10% a pullback, 10–20% a correction, over 20% a bear market.</span></p>
+</section>
+
 <section id="markets">
  <h2><span class="zh">🚦 市場行情</span><span class="en">🚦 Markets</span></h2>
  <h3><span class="zh">美股</span><span class="en">US markets</span></h3>
@@ -121,7 +138,7 @@ details{color:var(--muted);font-size:.8rem}
 </div>
 
 <script>
-let D=null, lang='zh';
+let D=null, lang='en';
 try{const s=localStorage.getItem('fxLang');if(s==='en'||s==='zh')lang=s;}catch(e){}
 const LIGHT={red:'var(--up)',yellow:'var(--warn)',green:'var(--down)'};
 const VIX_ALERT=30, NVDA_CAP=20;
@@ -171,6 +188,19 @@ function render(){
  document.getElementById('action').textContent=todo.length?T('有 '+todo.length+' 件事要做：',todo.length+' thing(s) to do: ')+todo.map(x=>L(x,'action')).join(T('；','; ')):T('不用做任何事。','Nothing to do today.');
  const vix=m.find(r=>r.symbol==='VIX'),nv=(D.holdings||[]).find(r=>r.symbol==='NVDA');
  document.getElementById('mood').textContent=((vix&&num(vix.value)>VIX_ALERT)?T('市場很恐慌','Markets are very fearful'):T('市場情緒還算平穩','Markets are fairly calm'))+T('；',', ')+((nv&&num(nv.weight_pct)<=NVDA_CAP)?T('你的持股都還在安全範圍內。','but your holdings are all within safe limits.'):T('輝達的比例超過上限，需要檢查。','and NVIDIA is above its cap.'));
+
+ const ld=document.getElementById('l-dd');ld.replaceChildren();
+ (D.drawdown||[]).forEach(r=>{
+  const b=el('div','box');const p=num(r.pct);
+  const top=el('div','nm',L(r,'name'));top.append(el('span','stage',L(r,'stage')));
+  const big=el('div','big',p==null?'—':fmt(p,2)+'%');if(p!=null&&p>=0)big.style.color='var(--up)';
+  const days=num(r.days),streak=num(r.streak);
+  const meta=el('div','meta',T('從 '+r.peak_date.slice(5).replace('-','/')+' 高點 '+fmt(num(r.peak),2)+' 起，已經 '+(days==null?'—':days)+' 天','Since the '+r.peak_date.slice(5).replace('-','/')+' high of '+fmt(num(r.peak),2)+': '+(days==null?'—':days)+' days'));
+  b.append(top,big,meta);
+  if(streak)b.append(el('div','meta',T('最近連續下跌 '+streak+' 個交易日','Down '+streak+' trading days in a row')));
+  const tr=el('div','track');const f=el('div','fill');f.style.width=Math.min(100,Math.abs(p||0)/30*100)+'%';tr.append(f);b.append(tr);
+  ld.append(b);
+ });
 
  ['us','tw'].forEach(reg=>{
   const s=document.getElementById('s-'+reg);s.replaceChildren();

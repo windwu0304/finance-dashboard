@@ -1,0 +1,30 @@
+name: LINE notify
+
+# Sends line_message.txt to Wind's LINE whenever the daily run updates it.
+# Needs two repo secrets: LINE_CHANNEL_ACCESS_TOKEN and LINE_USER_ID.
+on:
+  push:
+    branches: [main]
+    paths: [line_message.txt]
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push message to LINE
+        env:
+          TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$USER_ID" ]; then
+            echo "::warning::LINE secrets are not set yet, skipping."
+            exit 0
+          fi
+          body=$(jq -n --arg to "$USER_ID" --rawfile text line_message.txt \
+            '{to: $to, messages: [{type: "text", text: ($text | .[0:4900])}]}')
+          code=$(curl -sS -o resp.txt -w '%{http_code}' -X POST https://api.line.me/v2/bot/message/push \
+            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$body")
+          cat resp.txt; echo
+          if [ "$code" != "200" ]; then echo "::error::LINE API returned $code"; exit 1; fi

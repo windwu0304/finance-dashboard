@@ -51,6 +51,26 @@ td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 .bar .pct{text-align:right;font-variant-numeric:tabular-nums}
 details{color:var(--muted);font-size:.8rem}
 .legend{color:var(--muted);font-size:.75rem;margin:10px 0 0}
+.vals{display:flex;flex-direction:column;gap:14px;margin-top:10px}
+.vc{border:1px solid var(--line);border-radius:10px;padding:12px}
+.vc .hd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;justify-content:space-between}
+.vc .nm{font-weight:600}
+.vc .role{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:6px}
+.vc .px{font-variant-numeric:tabular-nums;font-size:.9rem}
+.rng{position:relative;height:62px;margin:14px 4px 4px}
+.rng .tk.b2 span{top:34px}
+.rng .ax{position:absolute;left:0;right:0;top:18px;height:6px;background:var(--bg);border-radius:3px}
+.rng .band{position:absolute;top:18px;height:6px;background:rgba(59,91,219,.35);border-radius:3px}
+.rng .tk{position:absolute;top:12px;width:2px;height:18px;background:var(--muted)}
+.rng .tk span{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--muted);white-space:nowrap}
+.rng .now{position:absolute;top:13px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--fg);border:2px solid var(--panel)}
+.rng .now span{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:.7rem;font-weight:600;white-space:nowrap}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.tiers div{background:var(--bg);border-radius:8px;padding:6px 8px;font-size:.78rem}
+.tiers b{display:block;font-variant-numeric:tabular-nums;font-size:.9rem}
+.tiers .hit{outline:2px solid var(--accent)}
+.meth{font-size:.75rem;color:var(--muted);margin-top:8px}
+.warn{font-size:.8rem;color:var(--warn);font-weight:600;margin-top:8px}
 .val{display:inline-block;font-size:.7rem;font-weight:600;padding:0 6px;border-radius:999px;margin-top:2px}
 .val.under{background:rgba(59,91,219,.12);color:var(--accent)}
 .val.over{background:rgba(201,138,0,.15);color:var(--warn)}
@@ -88,8 +108,15 @@ details{color:var(--muted);font-size:.8rem}
   <thead><tr><th><span class="zh">名稱</span><span class="en">Name</span></th><th class="num"><span class="zh">價格</span><span class="en">Price</span></th><th class="num"><span class="zh">漲跌</span><span class="en">Change</span></th><th class="num"><span class="zh">合理價</span><span class="en">Fair value</span></th><th class="num"><span class="zh">價格/合理價</span><span class="en">Price/FV</span></th><th class="num"><span class="zh">占比</span><span class="en">% of total</span></th><th><span class="zh">發生什麼事</span><span class="en">What happened</span></th><th><span class="zh">你要做的</span><span class="en">What to do</span></th></tr></thead>
   <tbody id="t-holdings"></tbody>
  </table></div>
- <p class="legend"><span class="zh">合理價是 Morningstar 分析師估計的長期合理價格；價格/合理價低於 0.85 為低估、高於 1.15 為高估。ETF 和現金沒有合理價。</span><span class="en">Fair value is Morningstar analysts&#39; long-term estimate. Price/FV below 0.85 is undervalued, above 1.15 overvalued. ETFs and cash have no fair value.</span></p>
+ <p class="legend"><span class="zh">合理價是下方「合理價區間」的中心值（台積電暫用 Morningstar）；價格/合理價低於 0.85 為低估、高於 1.15 為高估。ETF 和現金沒有合理價。</span><span class="en">Fair value is the midpoint of the range below (TSMC uses Morningstar for now). Price/FV below 0.85 is undervalued, above 1.15 overvalued. ETFs and cash have no fair value.</span></p>
  <p class="legend"><span class="zh"><span class="dot" style="background:var(--up)"></span>需要注意：有重大壞消息　<span class="dot" style="background:var(--warn)"></span>觀察：跟著大盤波動　<span class="dot" style="background:var(--down)"></span>正常：沒有壞消息</span><span class="en"><span class="dot" style="background:var(--up)"></span>Watch closely: major bad news　<span class="dot" style="background:var(--warn)"></span>Keep an eye on: moving with the market　<span class="dot" style="background:var(--down)"></span>OK: no bad news</span></p>
+</section>
+
+<section class="card" id="valuation">
+ <h2><span class="zh">🎯 合理價區間與分批進場</span><span class="en">🎯 Fair value range &amp; staged entry</span></h2>
+ <p class="legend" style="margin-top:0"><span class="zh">用你試算表的估價公式（目標殖利率法、相對 P/B、PEG、預估本益比），排除不合理的方法後取區間。分批進場：第一批到合理價、第二批到便宜價、第三批到很便宜（便宜價再打 85 折）。</span><span class="en">Built from your sheet&#39;s formulas (target yield, relative P/B, PEG, forward P/E), dropping methods that don&#39;t fit. Staged entry: batch 1 at fair value, batch 2 at the cheap price, batch 3 at very cheap (cheap price × 0.85).</span></p>
+ <div class="vals" id="l-val"></div>
+ <p class="legend" id="val-src"></p>
 </section>
 
 <section class="card" id="events">
@@ -196,6 +223,29 @@ function render(){
  document.getElementById('action').textContent=todo.length?T('有 '+todo.length+' 件事要做：',todo.length+' thing(s) to do: ')+todo.map(x=>L(x,'action')).join(T('；','; ')):T('不用做任何事。','Nothing to do today.');
  const vix=m.find(r=>r.symbol==='VIX'),nv=(D.holdings||[]).find(r=>r.symbol==='NVDA');
  document.getElementById('mood').textContent=((vix&&num(vix.value)>VIX_ALERT)?T('市場很恐慌','Markets are very fearful'):T('市場情緒還算平穩','Markets are fairly calm'))+T('；',', ')+((nv&&num(nv.weight_pct)<=NVDA_CAP)?T('你的持股都還在安全範圍內。','but your holdings are all within safe limits.'):T('輝達的比例超過上限，需要檢查。','and NVIDIA is above its cap.'));
+
+ const lv=document.getElementById('l-val');lv.replaceChildren();
+ const nvW=num(((D.holdings||[]).find(r=>r.symbol==='NVDA')||{}).weight_pct);
+ (D.valuation||[]).forEach(v=>{
+  const c=el('div','vc');const p=num(v.price),lo=num(v.low),mi=num(v.mid),hi=num(v.high),t3=num(v.tier3);
+  const hd=el('div','hd');const left=el('div');const nm=el('span','nm',L(v,'name')+' '+v.symbol);left.append(nm,el('span','role',v.role==='watch'?T('觀察名單','Watchlist'):T('持股','Holding')));
+  const right=el('div','px');right.append(T('現價 ','Price ')+fmt(p,2)+' ');
+  const tag=el('span','val '+(v.status==='貴'?'over':v.status==='合理'?'fair':'under'),L(v,'status'));right.append(tag);
+  hd.append(left,right);c.append(hd);
+  const minV=Math.min(t3,p)*0.92,maxV=Math.max(hi,p)*1.06,X=x=>((x-minV)/(maxV-minV)*100)+'%';
+  const r=el('div','rng');r.append(el('div','ax'));const b=el('div','band');b.style.left=X(lo);b.style.width=((hi-lo)/(maxV-minV)*100)+'%';r.append(b);
+  [[t3,T('很便宜','V.cheap')],[lo,T('便宜','Cheap')],[mi,T('合理','Fair')],[hi,T('偏貴','Pricey')]].forEach(([x,lab],i)=>{const t=el('div','tk'+(i%2?' b2':''));t.style.left=X(x);t.append(el('span',null,lab+' '+fmt(x,0)));r.append(t);});
+  const n=el('div','now');n.style.left=X(p);n.append(el('span',null,T('現價','Now')+' '+fmt(p,0)));r.append(n);c.append(r);
+  const ti=el('div','tiers');
+  [[num(v.tier1),T('第一批 30%','Batch 1 · 30%'),T('跌到合理價','At fair value')],[num(v.tier2),T('第二批 30%','Batch 2 · 30%'),T('跌到便宜價','At cheap price')],[num(v.tier3),T('第三批 40%','Batch 3 · 40%'),T('跌到很便宜','At very cheap')]].forEach(([x,a,bb])=>{const dv=el('div',p<=x?'hit':null);dv.append(a,el('b',null,'≤ '+fmt(x,2)),bb+(p<=x?T(' ✓ 已到',' ✓ reached'):''));ti.append(dv);});
+  c.append(ti);
+  const mm=[[T('殖利率法','Yield'),v.m_yield],['P/B',v.m_pb],['PEG',v.m_peg],[T('預估本益比','Fwd P/E'),v.m_fpe],['Morningstar',v.m_ms]].filter(z=>z[1]).map(z=>z[0]+' '+fmt(num(z[1]),0)).join(' · ');
+  c.append(el('div','meth',T('各方法估值：','Method values: ')+mm),el('div','meth',L(v,'note')));
+  if(v.symbol==='NVDA'&&nvW!=null&&nvW>20)c.append(el('div','warn',T('⚠️ 依你的規則：輝達已占總資產 '+fmt(nvW,2)+'%，超過 20% 上限，不加碼。','⚠️ Your rule: NVIDIA is '+fmt(nvW,2)+'% of total assets, above the 20% cap. Do not add.')));
+  else if(v.symbol==='NVDA')c.append(el('div','warn',T('⚠️ 依你的規則：輝達暫不加碼。','⚠️ Your rule: no adding to NVIDIA for now.')));
+  lv.append(c);
+ });
+ const vm=D.valuation_meta||{};document.getElementById('val-src').textContent=T('資料來源：','Source: ')+(L(vm,'source')||'—')+T('。以上不構成投資建議。','. Not investment advice.');
 
  const ld=document.getElementById('l-dd');ld.replaceChildren();
  (D.drawdown||[]).forEach(r=>{

@@ -12,15 +12,16 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Push message to LINE
         env:
           TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           USER_ID: ${{ secrets.LINE_USER_ID }}
         run: |
           if [ -z "$TOKEN" ] || [ -z "$USER_ID" ]; then
-            echo "::warning::LINE secrets are not set yet, skipping."
-            exit 0
+            [ -z "$TOKEN" ] && echo "::error::Missing repository secret LINE_CHANNEL_ACCESS_TOKEN"
+            [ -z "$USER_ID" ] && echo "::error::Missing repository secret LINE_USER_ID"
+            exit 1
           fi
           body=$(jq -n --arg to "$USER_ID" --rawfile text line_message.txt \
             '{to: $to, messages: [{type: "text", text: ($text | .[0:4900])}]}')

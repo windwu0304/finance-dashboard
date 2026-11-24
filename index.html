@@ -51,6 +51,10 @@ td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 .bar .pct{text-align:right;font-variant-numeric:tabular-nums}
 details{color:var(--muted);font-size:.8rem}
 .legend{color:var(--muted);font-size:.75rem;margin:10px 0 0}
+.val{display:inline-block;font-size:.7rem;font-weight:600;padding:0 6px;border-radius:999px;margin-top:2px}
+.val.under{background:rgba(59,91,219,.12);color:var(--accent)}
+.val.over{background:rgba(201,138,0,.15);color:var(--warn)}
+.val.fair{background:var(--bg);color:var(--muted)}
 .legend .dot{width:8px;height:8px;margin:0 4px 0 0}
 .dd{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .dd .box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -81,9 +85,10 @@ details{color:var(--muted);font-size:.8rem}
 <section class="card" id="holdings">
  <h2><span class="zh">💼 我的持股</span><span class="en">💼 My holdings</span></h2>
  <div class="scroll"><table>
-  <thead><tr><th><span class="zh">名稱</span><span class="en">Name</span></th><th class="num"><span class="zh">價格</span><span class="en">Price</span></th><th class="num"><span class="zh">漲跌</span><span class="en">Change</span></th><th class="num"><span class="zh">占比</span><span class="en">% of total</span></th><th><span class="zh">發生什麼事</span><span class="en">What happened</span></th><th><span class="zh">你要做的</span><span class="en">What to do</span></th></tr></thead>
+  <thead><tr><th><span class="zh">名稱</span><span class="en">Name</span></th><th class="num"><span class="zh">價格</span><span class="en">Price</span></th><th class="num"><span class="zh">漲跌</span><span class="en">Change</span></th><th class="num"><span class="zh">合理價</span><span class="en">Fair value</span></th><th class="num"><span class="zh">價格/合理價</span><span class="en">Price/FV</span></th><th class="num"><span class="zh">占比</span><span class="en">% of total</span></th><th><span class="zh">發生什麼事</span><span class="en">What happened</span></th><th><span class="zh">你要做的</span><span class="en">What to do</span></th></tr></thead>
   <tbody id="t-holdings"></tbody>
  </table></div>
+ <p class="legend"><span class="zh">合理價是 Morningstar 分析師估計的長期合理價格；價格/合理價低於 0.85 為低估、高於 1.15 為高估。ETF 和現金沒有合理價。</span><span class="en">Fair value is Morningstar analysts&#39; long-term estimate. Price/FV below 0.85 is undervalued, above 1.15 overvalued. ETFs and cash have no fair value.</span></p>
  <p class="legend"><span class="zh"><span class="dot" style="background:var(--up)"></span>需要注意：有重大壞消息　<span class="dot" style="background:var(--warn)"></span>觀察：跟著大盤波動　<span class="dot" style="background:var(--down)"></span>正常：沒有壞消息</span><span class="en"><span class="dot" style="background:var(--up)"></span>Watch closely: major bad news　<span class="dot" style="background:var(--warn)"></span>Keep an eye on: moving with the market　<span class="dot" style="background:var(--down)"></span>OK: no bad news</span></p>
 </section>
 
@@ -165,6 +170,10 @@ function render(){
   const tr=el('tr');const n=el('td');n.append(dot(r.light),document.createTextNode(L(r,'name')),el('span','sym',r.symbol==='CASH'?T('新台幣','TWD'):r.symbol));tr.append(n);
   const p=num(r.price);tr.append(td(p==null?'—':fmt(p,2)+(r.currency==='USD'?T(' 美元',' USD'):T(' 元',' TWD')),'num'));
   const c=num(r.change_pct);tr.append(td(pct(c),'num',col(c)));
+  const fv=num(r.fair_value);tr.append(td(fv==null?'—':fmt(fv,fv>=1000?0:2)+(r.fv_currency==='USD'?T(' 美元',' USD'):T(' 元',' TWD')),'num'));
+  const pf=num(r.p_fv);const pc=td(pf==null?'—':fmt(pf,2),'num');
+  if(pf!=null){const tag=el('span','val '+(pf<0.85?'under':pf>1.15?'over':'fair'),pf<0.85?T('低估','Under'):pf>1.15?T('高估','Over'):T('合理','Fair'));pc.append(document.createElement('br'),tag);}
+  tr.append(pc);
   tr.append(td(fmt(num(r.weight_pct),2)+'%','num'),td(L(r,'plain')),td(L(r,'action')));th.append(tr);
  });
 

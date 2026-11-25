@@ -1,6 +1,30 @@
-✅ LINE 測試成功｜LINE test OK
+📊 每日財經看板｜Daily Market Dashboard（2026/11/25）
 
-之後每個平日早上 7:51 左右，每日財經看板更新完會把摘要推到這裡。
-From now on, the daily dashboard summary arrives here every weekday around 7:51 AM.
+📌 今天要做什麼：輝達占總資產 20.9%，超過 20% 上限，可考慮減碼回 15～18%；其他規則都沒觸發。
+📌 What to do today: NVIDIA is 20.9% of your assets, above the 20% cap — consider trimming back to 15–18%. No other rule triggered.
 
-👉 https://finance-dashboard-696.pages.dev/
+🚦 美股：AI 股回吐前一天漲幅，S&P 500 跌 0.5%、那斯達克跌 1.5%，晶片股重挫近 8%。
+🚦 US markets: AI stocks gave back Monday's surge; S&P 500 -0.5%, Nasdaq -1.5%, chip stocks down nearly 8%.
+🚦 台股：加權指數大漲 3,310 點（+8.99%）收 40,122 點，史上最大漲點；但外資仍賣超 504 億。
+🚦 Taiwan market: TAIEX soared 3,310 points (+8.99%) to 40,122, a record point gain, but foreigners still sold NT$50.4B.
+
+📉 大跌追蹤：S&P 500 距高點 -7.9%（第 49 天，回檔）、台股 -19.7%（第 49 天，修正）
+📉 Drawdown: S&P 500 -7.9% from peak (day 49, pullback); TAIEX -19.7% (day 49, correction)
+
+🎯 分批進場：沒有新觸發
+🎯 Staged entry: No new triggers
+
+💼 持股重點：輝達跌 5.86% 收 155.38 美元，黃仁勳承認違反行為準則、調查未結束；台積電漲停收 2,230 元，0050 漲停收 95.7 元。
+💼 Holdings: NVIDIA fell 5.86% to $155.38 as Huang admitted code-of-conduct breaches and probes continue; TSMC hit limit-up at NT$2,230 and 0050 at NT$95.70.
+
+📰 重點新聞｜Top news
+1. 黃仁勳承認違反公司行為準則，輝達仍面臨多項調查｜Nvidia's Huang said he violated code of conduct, source says（Reuters）
+https://www.investing.com/news/stock-market-news/nvidia-slips-as-investors-assess-risks-surrounding-huangs-return-as-ceo-5047757
+2. 輝達反彈退燒，今晚 PCE 物價是 Fed 決策前關鍵｜Trading Day: Nvidia bounce fades（Reuters）
+https://finance.yahoo.com/markets/stocks/articles/trading-day-nvidia-bounce-fades-220752904.html
+3. 台股狂飆 3,310 點，外資續賣 503 億｜Taiwan stocks soar 3,310 points as foreigners keep selling（鉅亨網）
+https://news.cnyes.com/news/id/6670956
+
+👉 看板｜Dashboard：https://finance-dashboard-696.pages.dev/
+
+以上不構成投資建議。Not investment advice.
